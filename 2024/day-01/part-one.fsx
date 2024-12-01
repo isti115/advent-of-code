@@ -17,18 +17,15 @@ let data = input.Trim()
 
 let lines = data.Split('\n')
 
-let pairs = lines |> Seq.map (fun l -> Regex.Matches(l, "(\d+)\s+(\d+)"))
+let pairs = lines |> Seq.map (fun l -> Regex.Match(l, "(\d+)\s+(\d+)"))
 
-let numpairs =
-    pairs |> Seq.map (Seq.head >> _.Groups >> Seq.tail >> Seq.map (_.Value >> int))
+let numpairs = pairs |> Seq.map (_.Groups >> Seq.tail >> Seq.map (_.Value >> int))
 
-let numtups = numpairs |> Seq.map (fun p -> (Seq.head p, p |> Seq.tail |> Seq.head))
+let numtups = numpairs |> Seq.map (Seq.toList >> (fun [ l; r ] -> (l, r)))
 
-let (ls, rs) =
-    numtups |> Seq.fold (fun (ls, rs) (l, r) -> (l :: ls, r :: rs)) ([], [])
+let (ls, rs) = numtups |> Seq.toList |> List.unzip
 
 let sls = ls |> Seq.sort
 let srs = rs |> Seq.sort
 
-let mtups = Seq.zip sls srs
-mtups |> Seq.map (fun (l, r) -> abs (l - r)) |> Seq.sum
+Seq.zip sls srs |> Seq.map (fun (l, r) -> abs (l - r)) |> Seq.sum
